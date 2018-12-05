@@ -10,7 +10,7 @@ fun main(args: Array<String>) {
         optionalValue(1)
         singleton { Math.random() }
         optionalSingleton<Double> { null }
-        provider({ A() })
+        provider { A(get(name = "toto")) }
     }
 
     test()
@@ -27,7 +27,7 @@ fun test() {
     println(a.i2)
 }
 
-class A(val s1: String = get(name = "toto")) {
+class A(val s1: String) {
     val s2: String? by inject()
     val d1: Double by inject()
     val d2: Double? by inject()
