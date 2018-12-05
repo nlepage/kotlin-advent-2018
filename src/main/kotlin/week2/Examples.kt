@@ -3,14 +3,15 @@ package week2
 import week2.di.*
 
 fun main(args: Array<String>) {
-    // use default registry
-    provider { "coucou" }
-    optionalProvider { "aze" }
-    value(1)
-    optionalValue(1)
-    singleton { Math.random() }
-    optionalSingleton<Double> { null }
-    provider(::A)
+    registry {
+        provider { "coucou" }
+        optionalProvider { "aze" }
+        value(1)
+        optionalValue(1)
+        singleton { Math.random() }
+        optionalSingleton<Double> { null }
+        provider(::A)
+    }
 
     test()
     test()
