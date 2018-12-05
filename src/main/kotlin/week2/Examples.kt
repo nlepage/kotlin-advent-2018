@@ -4,13 +4,13 @@ import week2.di.*
 
 fun main(args: Array<String>) {
     registry {
-        provider { "coucou" }
+        provider { "coucou" } named "toto"
         optionalProvider { "aze" }
         value(1)
         optionalValue(1)
         singleton { Math.random() }
         optionalSingleton<Double> { null }
-        provider(::A)
+        provider({ A() })
     }
 
     test()
@@ -27,8 +27,7 @@ fun test() {
     println(a.i2)
 }
 
-class A {
-    val s1: String by inject()
+class A(val s1: String = get(name = "toto")) {
     val s2: String? by inject()
     val d1: Double by inject()
     val d2: Double? by inject()
