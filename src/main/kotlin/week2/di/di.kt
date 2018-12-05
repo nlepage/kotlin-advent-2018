@@ -10,6 +10,12 @@ fun use(registry: Registry) {
     currentRegistry = registry
 }
 
+// FIXME here replace Registry() by a Registry.Builder() to allow infix calls in dsl then instantiate Registry using builder.build()
+// FIXME -> remove top level definitions, force using registry DSL
+// FIXME -> Registry can become immutable (nice !)
+// FIXME also use a (mutable) ProviderBuilder for definitions, which will allow infix calls
+// FIXME calling registry will implicitly set the currentRegistry ? (default would be an empty registry ?)
+// FIXME add a module level ? to be used by use() ?
 inline fun registry(block: Registry.() -> Unit) = Registry().apply(block)
 inline fun <reified T : Any> provider(noinline provider: () -> T) = defaultRegistry.provider(provider)
 inline fun <reified T : Any> optionalProvider(noinline provider: () -> T?) = defaultRegistry.optionalProvider(provider)
@@ -23,16 +29,16 @@ data class Registry(
 ) : MutableMap<String, () -> Any?> by registryMap {
 
     inline fun <reified T : Any> provider(noinline provider: () -> T) {
-        val name = T::class.qualifiedName ?: throw RuntimeException("Can't create provider for anonymous type")
-        if (name in this) throw RuntimeException("A provider is already defined for $name")
-        this[name] = provider
+        val type = T::class.qualifiedName ?: throw RuntimeException("Can't create provider for anonymous type")
+        if (type in this) throw RuntimeException("A provider is already defined for $type")
+        this[type] = provider
     }
 
     inline fun <reified T : Any> optionalProvider(noinline provider: () -> T?) {
-        val name = T::class.qualifiedName?.let { "$it?" }
+        val type = T::class.qualifiedName?.let { "$it?" }
                 ?: throw RuntimeException("Can't create provider for anonymous type")
-        if (name in this) throw RuntimeException("A provider is already defined for $name")
-        this[name] = provider
+        if (type in this) throw RuntimeException("A provider is already defined for $type")
+        this[type] = provider
     }
 
     inline fun <reified T : Any> value(value: T) {
@@ -80,6 +86,7 @@ data class Registry(
 }
 
 inline fun <reified T> inject() = object : ReadOnlyProperty<Any, T> {
+    // FIXME store current registry here ?
     var value: T? = null
     var init = false
 
@@ -94,5 +101,4 @@ inline fun <reified T> inject() = object : ReadOnlyProperty<Any, T> {
     }
 }
 
-inline fun <reified T : Any> get() = currentRegistry.get<T>(false)
-inline fun <reified T : Any> getOptional() = currentRegistry.get<T?>(true)
+inline fun <reified T> get(nullable: Boolean = false) = currentRegistry.get<T>(nullable)
