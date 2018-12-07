@@ -3,8 +3,6 @@ package week2.di
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-// FIXME add a module level ? to be used by use() ?
-
 inline fun registry(block: Registry.Builder.() -> Unit) = Registry.Builder().apply(block).build().also { Registry.current = it }
 
 class Registry(registryMap: Map<Key, () -> Any?>) : Map<Registry.Key, () -> Any?> by registryMap {
@@ -23,7 +21,9 @@ class Registry(registryMap: Map<Key, () -> Any?>) : Map<Registry.Key, () -> Any?
             val type: String,
             val nullable: Boolean,
             val name: String? = null
-    )
+    ) {
+        override fun toString() = "type $type${if (nullable) "?" else ""}${if (name == null) "" else " (name=$name)"}"
+    }
 
     class ProviderBuilder(
             val provider: () -> Any?,
